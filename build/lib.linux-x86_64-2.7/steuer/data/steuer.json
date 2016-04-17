@@ -1,0 +1,61 @@
+{
+  "DragonRise Inc.   Generic   USB  Joystick  ": {
+    "button": {
+      "9": {
+        "Function": "ANALOG_R3"
+      },
+      "8": {
+        "Function": "ANALOG_L3"
+      },
+      "0": {
+        "Function": "BUTTON_TOP"
+      },
+      "3": {
+        "Function": "BUTTON_LEFT"
+      },
+      "11": {
+        "Function": "BUTTON_START"
+      },
+      "2": {
+        "Function": "BUTTON_DOWN"
+      },
+      "6": {
+        "Function": "SHOULDER_L2"
+      },
+      "10": {
+        "Function": "BUTTON_SELECT"
+      },
+      "5": {
+        "Function": "SHOULDER_R1"
+      },
+      "4": {
+        "Function": "SHOULDER_L1"
+      },
+      "1": {
+        "Function": "BUTTON_RIGHT"
+      },
+      "7": {
+        "Function": "SHOULDER_R2"
+      }
+    },
+    "hat": {},
+    "axis": {
+      "1:<": {
+        "Function": "DPAD_TOP"
+      },
+      "0:>": {
+        "Function": "DPAD_RIGHT"
+      },
+      "1:>": {
+        "Function": "DPAD_DOWN"
+      },
+      "0:<": {
+        "Function": "DPAD_LEFT"
+      }
+    }
+  },
+  "VirtualBox mouse integration": {
+  },
+  "VirtualBox USB Tablet": {
+  }
+}

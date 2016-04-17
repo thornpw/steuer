@@ -1,0 +1,3 @@
+#recursive-include steuer/data *
+#recursive-include steuer/examples *
+#recursive-include docs *
