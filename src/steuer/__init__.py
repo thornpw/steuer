@@ -4,7 +4,7 @@ import os  # used to read and write files
 import logging  # used for logging
 import logging.config  # the logging configuration
 
-__author__ = "ThorN ^ Pionierwerk <thorsten.butschke@googlemail.com>"
+__author__ = 'ThorN / .tSCc. ^ Pionierwerk <kradd@tscc.de>'
 
 # Steuer
 # ==========================================================================
@@ -73,7 +73,7 @@ rstick_bit_mask = 0b111100000000  # bits 8-11 - Todo: For future releases
 
 # functions
 # ==========================================================================
-def init(database_name="default", filename="steuer.json", mappingdb_path=os.path.join(os.path.expanduser("~"), ".steuer"), use_events=True):
+def init(database_name="default", filename="steuer.json", mappingdb_path="", is_in_working_dir=True, use_events=True):
     """
     initialize the module.
     Triggers the "on_initialized" event
@@ -84,17 +84,18 @@ def init(database_name="default", filename="steuer.json", mappingdb_path=os.path
     :type filename:                     string
     :param mappingdb_path:              Path to the mapping database. The default path "" points to the directory of the module
     :type mappingdb_path:               string
+    :param is_in_working_dir:           Defines if the path starts in the directory of the module (True(Default)) or not (False)
+    :type is_in_working_dir:            bool
     :param use_events:                  Defines if the event triggering functionality is used
     :type use_events:                   bool
     """
     _flags['use_events'] = use_events
 
     logger.debug("Steuer initializing")
-    logger.debug("searching database in %s", mappingdb_path)
 
     # try to load the mapping database
     # if not found the mapping database is an empty array
-    mapping_databases[database_name] = MappingDB(database_name, filename, mappingdb_path)
+    mapping_databases[database_name] = MappingDB(database_name, filename, mappingdb_path, is_in_working_dir)
     # get the number of controllers
     _number_of_connected_controllers = pygame.joystick.get_count()
     logger.debug("%s controllers found", str(_number_of_connected_controllers))
@@ -629,11 +630,16 @@ def get_action(event):
     return _action_happened
 
 
+# wrapper routine for pygame.joystick.get_count()
+def get_count():
+    return controllers.__len__()
+
+
 # class that represent the MappingDB. The MappingDB is a collection
 # of mapped controller types. Mapping and controller type is a synonym
 # =====================================================================
 class MappingDB(object):
-    def __init__(self, database_name, filename, mappingdb_path):
+    def __init__(self, database_name, filename, mappingdb_path, is_in_working_dir):
         """
         Construct.
         Set the path to the mapping database. And load the mapping database
@@ -644,6 +650,8 @@ class MappingDB(object):
         :type filename:                 string
         :param mappingdb_path:          The path to the mapping database
         :type filename:                 string
+        :param is_in_working_dir:       Flag if the mapping path starts in the working dir (True) or not (False)
+        :type is_in_working_dir:        bool
         """
         # @formatter:off
         self.database_name = database_name                  # alias of the database.
@@ -651,21 +659,26 @@ class MappingDB(object):
         self.mappings = {}                                  # the mappings in the database
         self.filename = filename                            # the name of the database file
         self.found_database = False                         # flag that show if the database was found (True) in the filesystem or not (False)
-        self.folder_path = mappingdb_path                   # the path to the folder where the database file is in
-
-        self.set_path(mappingdb_path)
+        self.set_path(mappingdb_path, is_in_working_dir)
         # @formatter:on
 
         self.load()
 
-    def set_path(self, mappingdb_path):
+    def set_path(self, mappingdb_path, is_in_working_dir):
         """
         set the path to the mapping database
 
         :param mappingdb_path:          The path to the mapping database
         :type mappingdb_path:           string
+        :param is_in_working_dir:       Flag if the mapping path starts in the working dir (True) or not (False)
+        :type is_in_working_dir:        bool
         """
-        self.path = os.path.join(mappingdb_path, self.filename)
+        if is_in_working_dir is True:
+            _path = os.path.join(os.getcwd(), self.path, self.filename)
+        else:
+            _path = os.path.join(mappingdb_path, self.filename)
+
+        self.path = _path
 
     def load(self):
         """
@@ -676,9 +689,6 @@ class MappingDB(object):
             logger.info("Steuer mapping database found and loaded")
             self.found_database = True
         else:
-            if not os.path.exists(self.folder_path):
-                os.mkdir(self.folder_path)
-
             self.mappings = {}
             logger.warning("No mapping database found")
 
@@ -883,11 +893,11 @@ class Configuration(object):
         :param controller:              the controller to be marked as undetected
         :type controller:               steuer.Controller
         """
-        cls.undetected_controllers.append(controller)
+        Configuration.undetected_controllers.append(controller)
 
         # trigger the "mapping not found" event
-        #if cls.on_mapping_not_found is not None and _flags['use_events']:
-        cls.on_mapping_not_found(controller)
+        if cls.on_mapping_not_found is not None and _flags['use_events']:
+            cls.on_mapping_not_found(controller)
 
     @classmethod
     def get_mapping_if_already_configured(cls, controller, database_name="default"):
